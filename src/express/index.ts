@@ -1,5 +1,7 @@
 import express from 'express';
 import { Application } from 'express'
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
 export default class App {
     app: Application
@@ -8,6 +10,8 @@ export default class App {
         this.app = express()
         this.port = config.port;
       
+        this.app.use(cors());
+        this.app.use(bodyParser.json());
         this.middleWares(config.middleWares);
         this.routes(config.routers);
 
