@@ -5,30 +5,21 @@ import * as dotenv from 'dotenv';
 import { AuthRouter } from "./routers/AuthRouter";
 import AuthService from "./services/auth";
 import AuthController from "./controllers/auth";
+import { Pool } from "pg";
+import PgAuthRepo from "./services/auth/repo/pg";
 
 dotenv.config();
 // repos
 
 async function main() {
-    const sqlConfig: config = {
-        user: process.env.DB_USER,
-        password: process.env.DB_PWD,
-        database: process.env.DB_NAME,
-        server: "localhost",
-        options: {
-            // encrypt: true, // for azure
-            trustServerCertificate: true, // change to true for local dev / self-signed certs
-        },
-        beforeConnect: (conn) => {
-            conn.once('connect', (err) => err ? console.log(err) : console.log("Connected!"));
-        }
-    };
-    const sql = await new ConnectionPool(sqlConfig).connect();
-    const authRepo = new MsAuthRepo(sql);
-
+    
+    const pgSql = new Pool();
+    const authRepo = new PgAuthRepo(pgSql);
     const authService = new AuthService(authRepo);
 
-    const authController = new AuthController(authService);
+    var authController = new AuthController(authService);
+
+
 
     
     const app = new App({

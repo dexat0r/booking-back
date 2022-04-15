@@ -15,6 +15,7 @@ export default class AuthController {
             }
 
             const resp = await this.authService.login(email, password);
+            console.log(resp)
             res.status(200).json(resp);
         } catch (error) {
             console.log(error)

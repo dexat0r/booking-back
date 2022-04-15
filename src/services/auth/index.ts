@@ -1,8 +1,8 @@
-import MsAuthRepo from "./repo/mssql";
+import PgAuthRepo from "./repo/pg";
 
 export default class AuthService {
 
-    constructor(private repo: MsAuthRepo) {}
+    constructor(private repo: PgAuthRepo) {}
 
     login = async (email: string, password: string) => {
         return await this.repo.login(email, password);

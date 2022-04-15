@@ -1,7 +1,8 @@
 import { ConnectionPool, IResult, VarChar, Int } from "mssql";
+import { PoolClient } from "pg";
 import { User } from "../../../../interface";
 export default class MsAuthRepo {
-    constructor(private sql: ConnectionPool) {}
+    constructor(private sql: PoolClient) {}
 
     login = async (email: string, password: string) => {
         try {
