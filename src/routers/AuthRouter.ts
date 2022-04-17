@@ -9,5 +9,6 @@ export class AuthRouter {
     constructor(authController: AuthController) {
         this.router.post('/login', authController.login)
         this.router.post('/register', authController.register)
+        this.router.post('/update', authController.updateThemeUser)
     }
 }

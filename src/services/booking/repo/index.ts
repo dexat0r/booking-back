@@ -23,12 +23,16 @@ export default class BookingRepo {
         const cityQuery = `select * from public.city join public.region on public.region.id=public.city.id_region`;
         const roomQuery = `select distinct bedroom_count from public.property`;
         const amenitiesQuery = `select * from public.amenities`;
+        const regionQuery = `select * from public.region`;
+        const categoryQuery = `select * from public.category`;
 
         const requests = {
             countryQuery,
             cityQuery,
             roomQuery,
             amenitiesQuery,
+            regionQuery,
+            categoryQuery
         };
 
         const result = {};
@@ -44,7 +48,9 @@ export default class BookingRepo {
     };
 
     dropPost = async (id: number) => {
+        const amenityQuery = `delete from public.property_amenities where id_property=$1`
         const query = `delete from public.property where id=$1`;
+        await this.pool.query(amenityQuery,[id]);
         const res = await this.pool.query(query, [id]);
         return res.rowCount > 0;
     };
@@ -97,7 +103,7 @@ export default class BookingRepo {
         return false;
     };
 
-    createPost = async (user: number, amenities: number[], country: number, city: number, region: number, bedrooms: number, price: number, category: number) => {
+    createPost = async (user: number, amenities: number, country: number, city: number, region: number, bedrooms: number, price: number, category: number) => {
         const createLocationQuery = `insert into public.location values ($1,$2,$3,$4,$5,$6,$7) returning id`;
         const locationNumberQuery = `select count(*) as count from public.location`;
         const propertyNumberQuery = `select count(*) as count from public.location`;
@@ -110,17 +116,13 @@ export default class BookingRepo {
         const propertyAmount = (await this.pool.query(propertyNumberQuery)).rows[0].count;
         const post = await this.pool.query(createPropertyQuery, [Number(propertyAmount)+1, Number(location), category, user, bedrooms, 0, 0, 0, price]);
 
-        for (let i of amenities) {
-            await this.pool.query(createAmenitiesQuery, [Number(post.rows[0].id), i, 150]);
-        }
-
+        await this.pool.query(createAmenitiesQuery, [Number(post.rows[0].id), amenities, 150]);
+        
         return true;
     }
 
     getPosts = async () => {
-        const query = `select * from public.property prop 
-                        join public.location loc on prop.id_location=loc.id
-                        join public.category cat on prop.id_category=cat.id`
+        const query = `select * from public.property prop`
         const posts = await this.pool.query(query);
         return posts.rows;
     }
@@ -130,6 +132,16 @@ export default class BookingRepo {
                         join public.amenities a on a.id=pa.id_amenity
                         where pa.id_property=$1`
         return (await this.pool.query(query,[prop_id])).rows;
+    }
+
+    getLocation = async (id: number) => {
+        const query = `select * from public.location where id=$1`
+        return (await this.pool.query(query,[id])).rows[0];
+    }
+
+    getCategory = async (id: number) => {
+        const query = `select * from public.category where id=$1`
+        return (await this.pool.query(query,[id])).rows[0];
     }
 
     getBooking = async (prop_id: number) => {

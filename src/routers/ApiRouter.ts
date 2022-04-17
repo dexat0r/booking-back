@@ -9,11 +9,9 @@ export class ApiRouter {
     constructor(api: ApiController) {
         this.router.get('/filters', api.getFilters)
         this.router.post('/book', api.book)
+        this.router.get('/post', api.getPosts)
         this.router.post('/post/create', api.createPost)
         this.router.get('/post/drop', api.dropPost)
-        this.router.get('/post', api.getPosts)
         this.router.get('/post/watch', api.addWatch)
-        this.router.get("/online", api.online)
-        this.router.get("/ofline", api.ofline)
     }
 }

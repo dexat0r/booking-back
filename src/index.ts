@@ -35,7 +35,7 @@ async function main() {
     const authService = new AuthService(authRepo);
     const bookingService = new BookingService(bookingRepo);
 
-    const authController = new AuthController(authService);
+    const authController = new AuthController(authService, mongo);
     const apiController = new ApiController(bookingService, client, mongo);
 
     const app = new App({

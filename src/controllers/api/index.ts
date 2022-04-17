@@ -6,20 +6,13 @@ export default class ApiController {
     constructor (private booking: BookingService, private client: any, private mongo: MongoClient) {}
 
     private getFromRedis = async (id: number) => {
-        return await this.client.get(id.toString())
+        return await this.client.get(id.toString()) || 0
     }
 
     private setRedis = async (id: number, value: any) => {
         return await this.client.set(id.toString(), value.toString());
     }
 
-    private getOnline = async () => {
-        return await this.mongo.db('mongo').collection('online').find({}).toArray();
-    }
-
-    private setOnline = async (online: number) => {
-        return await this.mongo.db('mongo').collection('online').updateMany({},{$set: { online }}, { upsert: true });
-    }
 
     getFilters = async (req: Request, res: Response) => {
         try {
@@ -44,8 +37,8 @@ export default class ApiController {
 
     createPost = async (req: Request, res: Response) => {
         try {
-            const { user, amenities, country, city, region, bedrooms, price, category } = req.body;
-            const resp = await this.booking.createPost(user, amenities, country, city, region, bedrooms, price, category);
+            const { user, amenity, country, city, region, rooms, price, category } = req.body;
+            const resp = await this.booking.createPost(user, amenity, country, city, region, rooms, price, category);
             res.status(200).json(resp);
         } catch (error) {
             console.log(error)
@@ -71,9 +64,11 @@ export default class ApiController {
                 const amenity = await this.booking.getAmenity(el.id);
                 const booking = await this.booking.getBooking(el.id);
                 const watches = await this.getFromRedis(Number(el.id));
-
-                console.log(watches)
-                
+                const location = await this.booking.getLocation(el.id_location);
+                const category = await this.booking.getCategory(el.id_category);
+                el.name = category.name
+                el.id_country = location.id_country                
+                el.id_city = location.id_city                
                 el.watches = watches;
                 el.amenity = amenity;
                 el.booking = booking;
@@ -97,23 +92,4 @@ export default class ApiController {
         }
     }
 
-    online = async (req: Request, res: Response) => {
-        try {
-            const current_online = (await this.getOnline())[0]?.online || 0;
-            await this.setOnline(current_online + 1)
-            res.status(200).json({
-                current_online: current_online + 1
-            })
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    ofline = async (req: Request, res: Response) => {
-        try {
-            
-        } catch (error) {
-            
-        }
-    }
 }
