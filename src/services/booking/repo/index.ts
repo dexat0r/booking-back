@@ -49,8 +49,10 @@ export default class BookingRepo {
 
     dropPost = async (id: number) => {
         const amenityQuery = `delete from public.property_amenities where id_property=$1`
+        const bookingsQuery = `delete from public.booking where id_property=$1`
         const query = `delete from public.property where id=$1`;
         await this.pool.query(amenityQuery,[id]);
+        await this.pool.query(bookingsQuery, [id])
         const res = await this.pool.query(query, [id]);
         return res.rowCount > 0;
     };
@@ -89,7 +91,7 @@ export default class BookingRepo {
         ]);
         if (createTransaction.rowCount > 0) {
             const book = await this.pool.query(bookingQuery, [
-                Number(bookingNumber) + 1,
+                Date.now() % 100000,
                 property,
                 user,
                 this.date(date_from),
@@ -112,7 +114,7 @@ export default class BookingRepo {
         const locationAmount = (await this.pool.query(locationNumberQuery)).rows[0].count;
         const location = (await this.pool.query(createLocationQuery, [Number(locationAmount)+1, country, 1, city, "", 0, 0])).rows[0].id;
         const propertyAmount = (await this.pool.query(propertyNumberQuery)).rows[0].count;
-        const post = await this.pool.query(createPropertyQuery, [Number(propertyAmount)+1, Number(location), category, user, bedrooms, 0, 0, 0, price]);
+        const post = await this.pool.query(createPropertyQuery, [Date.now() % 100000, Number(location), category, user, bedrooms, 0, 0, 0, price]);
 
         await this.pool.query(createAmenitiesQuery, [Number(post.rows[0].id), amenities, 150]);
         
