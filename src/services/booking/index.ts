@@ -13,7 +13,7 @@ export default class BookingService {
     }
 
     createPost = async (user: number, amenities: number, country: number, city: number, region: number, bedrooms: number, price: number, category: number) => {
-        return await this.repo.createPost(user, amenities, country, city, region, bedrooms, price, category);
+        return await this.repo.createPost(user, amenities, country, city, bedrooms, price, category);
     }
 
     dropPost = async (id: number) => await this.repo.dropPost(id);

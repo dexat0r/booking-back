@@ -97,22 +97,20 @@ export default class BookingRepo {
                 bookingCost,
                 Number(transNumber) + 1,
             ]);
-            return book.rowCount > 0;
+            return book.rowCount > 0 ? bookingCost : false;
         }
 
         return false;
     };
 
-    createPost = async (user: number, amenities: number, country: number, city: number, region: number, bedrooms: number, price: number, category: number) => {
+    createPost = async (user: number, amenities: number, country: number, city: number, bedrooms: number, price: number, category: number) => {
         const createLocationQuery = `insert into public.location values ($1,$2,$3,$4,$5,$6,$7) returning id`;
         const locationNumberQuery = `select count(*) as count from public.location`;
         const propertyNumberQuery = `select count(*) as count from public.location`;
         const createPropertyQuery = `insert into public.property values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id`;
         const createAmenitiesQuery = `insert into public.property_amenities values ($1,$2,$3)`;
-
         const locationAmount = (await this.pool.query(locationNumberQuery)).rows[0].count;
-        const location = (await this.pool.query(createLocationQuery, [Number(locationAmount)+1, country, region, city, "", 0, 0])).rows[0].id;
-        
+        const location = (await this.pool.query(createLocationQuery, [Number(locationAmount)+1, country, 1, city, "", 0, 0])).rows[0].id;
         const propertyAmount = (await this.pool.query(propertyNumberQuery)).rows[0].count;
         const post = await this.pool.query(createPropertyQuery, [Number(propertyAmount)+1, Number(location), category, user, bedrooms, 0, 0, 0, price]);
 
